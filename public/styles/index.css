@@ -2,24 +2,10 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Tangerine:wght@400;700&display=swap');
 
-.chewy-regular {
-  font-family: "Chewy", system-ui;
-  font-weight: 400;
-  font-style: normal;
+@font-face {
+  font-family: 'Taruno';
+  src: url('/Fonts/taruno-wide-font/TarunowideMediumitalic-GOPaa.otf') format('opentype');
 }
-
-.tangerine-regular {
-  font-family: "Tangerine", cursive;
-  font-weight: 400;
-  font-style: normal;
-}
-
-.tangerine-bold {
-  font-family: "Tangerine", cursive;
-  font-weight: 700;
-  font-style: normal;
-}
-
 
 @font-face {
   font-family: 'Sterion-BLLld';
@@ -33,12 +19,6 @@
   font-style: normal;
 }
 
-@font-face {
-  font-family: 'Chewy';
-  src: url('/Fonts/Chewy/Chewy-Regular.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-}
 
 @keyframes fadeInUp {
   0% {
@@ -321,7 +301,9 @@ nav a:hover {
   cursor: pointer;
 }
 
-.star-1, .star-2, .star-3 {
+.star-1,
+.star-2,
+.star-3 {
   position: absolute;
   top: 20%;
   left: 20%;
@@ -329,11 +311,13 @@ nav a:hover {
   height: auto;
   filter: drop-shadow(0 0 0#fffdef);
   z-index: -5;
-  opacity: 0; /* Hide stars by default */
+  opacity: 0;
+  /* Hide stars by default */
   transition: all 1s cubic-bezier(0.05, 0.83, 0.43, 0.96);
 }
 
-.star-2, .star-3 {
+.star-2,
+.star-3 {
   top: 45%;
   left: 45%;
   width: 15px;
@@ -353,12 +337,15 @@ nav a:hover {
   transition: all 0.8s cubic-bezier(0, 0.4, 0, 1.01);
 }
 
-.star-4, .star-5, .star-6 {
+.star-4,
+.star-5,
+.star-6 {
   position: absolute;
   height: auto;
   filter: drop-shadow(0 0 0#fffdef);
   z-index: -5;
-  opacity: 0; /* Hide stars by default */
+  opacity: 0;
+  /* Hide stars by default */
 }
 
 .star-5 {
@@ -381,7 +368,8 @@ button:hover {
   box-shadow: 0 0 25px #a259ff80;
 }
 
-button:hover .star-1, button:hover .star-2 {
+button:hover .star-1,
+button:hover .star-2 {
   position: absolute;
   top: -80%;
   left: -30%;
@@ -389,7 +377,8 @@ button:hover .star-1, button:hover .star-2 {
   height: auto;
   filter: drop-shadow(0 0 10px #fff);
   z-index: 2;
-  opacity: 1; /* Show stars on hover */
+  opacity: 1;
+  /* Show stars on hover */
 }
 
 button:hover .star-2 {
@@ -398,7 +387,10 @@ button:hover .star-2 {
   width: 15px;
 }
 
-button:hover .star-3, button:hover .star-4, button:hover .star-5, button:hover .star-6 {
+button:hover .star-3,
+button:hover .star-4,
+button:hover .star-5,
+button:hover .star-6 {
   position: absolute;
   top: 55%;
   left: 25%;
@@ -406,16 +398,20 @@ button:hover .star-3, button:hover .star-4, button:hover .star-5, button:hover .
   height: auto;
   filter: drop-shadow(0 0 10px #fff);
   z-index: 2;
-  opacity: 1; /* Show stars on hover */
+  opacity: 1;
+  /* Show stars on hover */
 }
 
-button:hover .star-4, button:hover .star-5, button:hover .star-6 {
+button:hover .star-4,
+button:hover .star-5,
+button:hover .star-6 {
   top: 30%;
   left: 80%;
   width: 8px;
 }
 
-button:hover .star-5, button:hover .star-6 {
+button:hover .star-5,
+button:hover .star-6 {
   top: 25%;
   left: 115%;
   width: 15px;
@@ -444,11 +440,16 @@ button:hover .star-6 {
   margin: 0 auto 60px;
 }
 
-.company-description h2 {
+
+.company-description h2,
+.profile-cards-section h3,
+.contact-container h2 {
+  font-family: 'Taruno', sans-serif;
   font-size: 2.5rem;
   font-weight: 700;
   margin-bottom: 30px;
-  background: white/* linear-gradient(135deg, #f0f0f0 0, #7e57c2 100%) */;
+  background: /* rgb(126, 87, 194) */
+    linear-gradient(135deg, #f0f0f0 0, #7e57c2 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
