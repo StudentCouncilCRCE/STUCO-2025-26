@@ -1,0 +1,26 @@
+{
+  "name": "FRCRCE Student Council 2025-26",
+  "short_name": "FRCRCE STUCO",
+  "description": "Official Student Council of Fr. Conceicao Rodrigues College of Engineering for 2025-26",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#7e57c2",
+  "theme_color": "#7e57c2",
+  "orientation": "portrait-primary",
+  "categories": ["education", "social"],
+  "lang": "en-IN",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "32x32",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "/images/Artboard%201purp.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

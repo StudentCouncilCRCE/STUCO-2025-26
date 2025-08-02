@@ -1,0 +1,14 @@
+User-agent: *
+Allow: /
+Disallow: /app/
+Disallow: /drizzle/
+Disallow: /notes/
+Disallow: *.json
+Disallow: *.ts
+Disallow: *.tsx
+
+# Sitemap
+Sitemap: https://frcrcestuco.com/sitemap.xml
+
+# Crawl-delay for better server performance
+Crawl-delay: 1
