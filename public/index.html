@@ -151,7 +151,6 @@
   <link rel="preload" href="/styles/index.css" as="style">
   <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" as="style"
     crossorigin>
-  <link rel="prefetch" href="/Videos/stuco_animation.mp4" as="video" type="video/mp4">
 
   <!-- Preload critical planet images for hero animation -->
   <link rel="preload" href="/images/technical_planets.png" as="image" type="image/png">
@@ -442,11 +441,71 @@
       pointer-events: none;
     }
 
-    #logoIntroVideo {
+    #logoIntroSVG,
+    .favicon-reveal-container {
       max-width: 300px;
       max-height: 300px;
       width: auto;
       height: auto;
+      filter: drop-shadow(0 0 30px rgba(126, 87, 194, 0.8)) drop-shadow(0 0 60px rgba(126, 87, 194, 0.4));
+      animation: logoScale 4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .favicon-reveal-container {
+      position: relative;
+      width: 300px;
+      height: 300px;
+    }
+
+    .reveal-svg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 2;
+    }
+
+    .favicon-reveal-image {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      opacity: 0;
+      animation: revealFavicon 1s ease-in-out 2.5s forwards;
+      z-index: 1;
+      filter: drop-shadow(0 0 20px rgba(126, 87, 194, 0.6));
+    }
+
+    @keyframes revealFavicon {
+      0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.5);
+      }
+
+      100% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+      }
+    }
+
+    @keyframes logoScale {
+      0% {
+        transform: scale(0.8);
+        opacity: 0.8;
+      }
+
+      50% {
+        transform: scale(1.05);
+        opacity: 1;
+      }
+
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
     }
 
     .logo-3d {
@@ -1084,13 +1143,38 @@
         <div class="wave"></div>
       </div>
 
-      <!-- 3D Logo -->
+      <!-- 3D Logo with SVG Path Animation -->
       <div class="logo-intro-overlay" id="logoIntroOverlay">
-        <video id="logoIntroVideo" muted playsinline webkit-playsinline preload="none" loading="lazy">
-          <source data-src="\Videos\stuco_animation.mp4" type="video/mp4" />
-          <!-- Add other video formats if needed -->
-          Your browser does not support the video tag.
-        </video>
+        <div id="logoIntroContainer" class="favicon-reveal-container">
+          <!-- Circular reveal with stroke animation using actual favicon -->
+          <svg width="300" height="300" viewBox="0 0 300 300" class="reveal-svg">
+            <defs>
+              <style>
+                .favicon-stroke {
+                  fill: none;
+                  stroke: #7e57c2;
+                  stroke-width: 4;
+                  stroke-linecap: round;
+                  stroke-dasharray: 754;
+                  stroke-dashoffset: 754;
+                  animation: drawStroke 3s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+                }
+
+                @keyframes drawStroke {
+                  to {
+                    stroke-dashoffset: 0;
+                  }
+                }
+              </style>
+            </defs>
+            <!-- Animated stroke border -->
+            <circle cx="150" cy="150" r="120" class="favicon-stroke" />
+          </svg>
+
+          <!-- The actual favicon with reveal animation -->
+          <img src="/favicon.ico" alt="Student Council Logo" class="favicon-reveal-image" width="200" height="200" />
+        </div>
+      </div>
       </div>
 
       <div class="logo-3d" id="logo3d" style="opacity: 0">
@@ -1963,474 +2047,404 @@
 
   <!-- Performance Monitoring -->
   <script>
-/**
- * Production-Ready Interactive Interface
- * Version: 2.0.0
- * Performance Score: 9.5/10
- * Security: Enterprise-grade
- * Memory Management: Zero-leak architecture
- */
-(function() {
-  'use strict';
+    /**
+     * Production-Ready Interactive Interface
+     * Version: 2.0.0
+     * Performance Score: 9.5/10
+     * Security: Enterprise-grade
+     * Memory Management: Zero-leak architecture
+     */
+    (function () {
+      'use strict';
 
-  // Performance monitoring with error boundaries
-  const PerformanceMonitor = {
-    init() {
-      if (!('performance' in window)) return;
-      
-      try {
-        window.addEventListener('load', () => {
-          const perfData = performance.getEntriesByType('navigation')[0];
-          if (perfData && typeof perfData.domContentLoadedEventEnd === 'number') {
-            const metrics = {
-              'DOM Content Loaded': Math.round(perfData.domContentLoadedEventEnd - perfData.fetchStart),
-              'Full Load Time': Math.round(perfData.loadEventEnd - perfData.fetchStart),
-              'DNS Lookup': Math.round(perfData.domainLookupEnd - perfData.domainLookupStart),
-              'Server Response': Math.round(perfData.responseEnd - perfData.requestStart)
-            };
-            
-            // Validate metrics before logging
-            if (Object.values(metrics).every(val => !isNaN(val) && val >= 0)) {
-              console.log('Page Load Performance:', metrics);
-            }
-          }
-        }, { once: true, passive: true });
-      } catch (error) {
-        console.warn('Performance monitoring failed:', error.message);
-      }
-    }
-  };
-
-  // Enhanced LazyLoader with memory management
-  class LazyLoader {
-    constructor() {
-      this.imageObserver = null;
-      this.videoObserver = null;
-      this.loadedImages = new WeakSet(); // Use WeakSet to prevent memory leaks
-      this.observers = new Set();
-      this.eventHandlers = new Map();
-      this.isDestroyed = false;
-      
-      this.options = {
-        root: null,
-        rootMargin: '50px',
-        threshold: 0.1
-      };
-
-      this.init();
-    }
-
-    init() {
-      if (this.isDestroyed) return;
-
-      try {
-        if ('IntersectionObserver' in window) {
-          this.setupIntersectionObserver();
-        } else {
-          this.fallbackToImmediate();
-        }
-        this.setupVideoLoading();
-        this.preloadCriticalImages();
-      } catch (error) {
-        console.error('LazyLoader initialization failed:', error);
-        this.fallbackToImmediate();
-      }
-    }
-
-    setupIntersectionObserver() {
-      try {
-        this.imageObserver = new IntersectionObserver((entries) => {
-          if (this.isDestroyed) return;
-          
-          entries.forEach(entry => {
-            if (entry.isIntersecting && entry.target) {
-              this.loadImage(entry.target);
-              this.imageObserver.unobserve(entry.target);
-            }
-          });
-        }, this.options);
-
-        this.observers.add(this.imageObserver);
-        this.observeImages();
-      } catch (error) {
-        console.error('IntersectionObserver setup failed:', error);
-        this.fallbackToImmediate();
-      }
-    }
-
-    observeImages() {
-      if (this.isDestroyed || !this.imageObserver) return;
-
-      try {
-        // Use more specific selectors to avoid unnecessary processing
-        const lazyImages = document.querySelectorAll('img[data-src]:not(.loaded)');
-        const nativeLazyImages = document.querySelectorAll('img[loading="lazy"]:not([data-src]):not(.loaded)');
-
-        lazyImages.forEach(img => {
-          if (!this.loadedImages.has(img) && img.parentNode) {
-            img.classList.add('lazy-load');
-            this.imageObserver.observe(img);
-          }
-        });
-
-        nativeLazyImages.forEach(img => {
-          if (!this.loadedImages.has(img) && img.parentNode) {
-            img.classList.add('lazy-load');
-            
-            const loadHandler = () => {
-              img.classList.add('loaded');
-              this.loadedImages.add(img);
-            };
-            
-            img.addEventListener('load', loadHandler, { once: true, passive: true });
-            this.eventHandlers.set(img, { event: 'load', handler: loadHandler });
-
-            if (img.complete && img.naturalHeight !== 0) {
-              loadHandler();
-            }
-          }
-        });
-      } catch (error) {
-        console.error('Image observation failed:', error);
-      }
-    }
-
-    loadImage(img) {
-      if (this.isDestroyed || !img || this.loadedImages.has(img)) return;
-
-      try {
-        if (img.hasAttribute('data-src')) {
-          const src = img.getAttribute('data-src');
-          
-          // Validate URL
-          if (!src || typeof src !== 'string' || src.length > 2048) {
-            console.warn('Invalid image src:', src);
-            return;
-          }
-
-          const imageLoader = new Image();
-          
-          const cleanup = () => {
-            imageLoader.onload = null;
-            imageLoader.onerror = null;
-          };
-
-          imageLoader.onload = () => {
-            if (this.isDestroyed || !img.parentNode) {
-              cleanup();
-              return;
-            }
-            
-            img.src = src;
-            img.removeAttribute('data-src');
-            img.classList.add('loaded');
-            this.loadedImages.add(img);
-            cleanup();
-          };
-
-          imageLoader.onerror = () => {
-            console.warn('Failed to load image:', src);
-            if (img.parentNode) {
-              img.classList.add('loaded', 'error');
-            }
-            cleanup();
-          };
-
-          imageLoader.src = src;
-        } else {
-          img.classList.add('loaded');
-          this.loadedImages.add(img);
-        }
-      } catch (error) {
-        console.error('Image loading error:', error);
-        if (img && img.parentNode) {
-          img.classList.add('loaded', 'error');
-        }
-      }
-    }
-
-    setupVideoLoading() {
-      if (this.isDestroyed) return;
-
-      try {
-        const video = document.getElementById('logoIntroVideo');
-        if (!video) return;
-
-        let hasLoaded = false;
-        const interactionEvents = ['click', 'touchstart', 'scroll'];
-        const handlers = [];
-
-        const loadVideo = () => {
-          if (hasLoaded || this.isDestroyed) return;
-          hasLoaded = true;
+      // Performance monitoring with error boundaries
+      const PerformanceMonitor = {
+        init() {
+          if (!('performance' in window)) return;
 
           try {
-            const source = video.querySelector('source[data-src]');
-            if (source && !video.src) {
-              const src = source.getAttribute('data-src');
-              
-              // Validate video URL
-              if (src && typeof src === 'string' && src.length < 2048) {
-                source.src = src;
-                source.removeAttribute('data-src');
-                video.load();
+            window.addEventListener('load', () => {
+              const perfData = performance.getEntriesByType('navigation')[0];
+              if (perfData && typeof perfData.domContentLoadedEventEnd === 'number') {
+                const metrics = {
+                  'DOM Content Loaded': Math.round(perfData.domContentLoadedEventEnd - perfData.fetchStart),
+                  'Full Load Time': Math.round(perfData.loadEventEnd - perfData.fetchStart),
+                  'DNS Lookup': Math.round(perfData.domainLookupEnd - perfData.domainLookupStart),
+                  'Server Response': Math.round(perfData.responseEnd - perfData.requestStart)
+                };
 
-                const playPromise = video.play();
-                if (playPromise && typeof playPromise.catch === 'function') {
-                  playPromise.catch(error => {
-                    console.log('Video autoplay prevented:', error.message);
-                  });
+                // Validate metrics before logging
+                if (Object.values(metrics).every(val => !isNaN(val) && val >= 0)) {
+                  console.log('Page Load Performance:', metrics);
                 }
               }
+            }, { once: true, passive: true });
+          } catch (error) {
+            console.warn('Performance monitoring failed:', error.message);
+          }
+        }
+      };
+
+      // Enhanced LazyLoader with memory management
+      class LazyLoader {
+        constructor() {
+          this.imageObserver = null;
+          this.videoObserver = null;
+          this.loadedImages = new WeakSet(); // Use WeakSet to prevent memory leaks
+          this.observers = new Set();
+          this.eventHandlers = new Map();
+          this.isDestroyed = false;
+
+          this.options = {
+            root: null,
+            rootMargin: '50px',
+            threshold: 0.1
+          };
+
+          this.init();
+        }
+
+        init() {
+          if (this.isDestroyed) return;
+
+          try {
+            if ('IntersectionObserver' in window) {
+              this.setupIntersectionObserver();
+            } else {
+              this.fallbackToImmediate();
+            }
+            this.preloadCriticalImages();
+          } catch (error) {
+            console.error('LazyLoader initialization failed:', error);
+            this.fallbackToImmediate();
+          }
+        }
+
+        setupIntersectionObserver() {
+          try {
+            this.imageObserver = new IntersectionObserver((entries) => {
+              if (this.isDestroyed) return;
+
+              entries.forEach(entry => {
+                if (entry.isIntersecting && entry.target) {
+                  this.loadImage(entry.target);
+                  this.imageObserver.unobserve(entry.target);
+                }
+              });
+            }, this.options);
+
+            this.observers.add(this.imageObserver);
+            this.observeImages();
+          } catch (error) {
+            console.error('IntersectionObserver setup failed:', error);
+            this.fallbackToImmediate();
+          }
+        }
+
+        observeImages() {
+          if (this.isDestroyed || !this.imageObserver) return;
+
+          try {
+            // Use more specific selectors to avoid unnecessary processing
+            const lazyImages = document.querySelectorAll('img[data-src]:not(.loaded)');
+            const nativeLazyImages = document.querySelectorAll('img[loading="lazy"]:not([data-src]):not(.loaded)');
+
+            lazyImages.forEach(img => {
+              if (!this.loadedImages.has(img) && img.parentNode) {
+                img.classList.add('lazy-load');
+                this.imageObserver.observe(img);
+              }
+            });
+
+            nativeLazyImages.forEach(img => {
+              if (!this.loadedImages.has(img) && img.parentNode) {
+                img.classList.add('lazy-load');
+
+                const loadHandler = () => {
+                  img.classList.add('loaded');
+                  this.loadedImages.add(img);
+                };
+
+                img.addEventListener('load', loadHandler, { once: true, passive: true });
+                this.eventHandlers.set(img, { event: 'load', handler: loadHandler });
+
+                if (img.complete && img.naturalHeight !== 0) {
+                  loadHandler();
+                }
+              }
+            });
+          } catch (error) {
+            console.error('Image observation failed:', error);
+          }
+        }
+
+        loadImage(img) {
+          if (this.isDestroyed || !img || this.loadedImages.has(img)) return;
+
+          try {
+            if (img.hasAttribute('data-src')) {
+              const src = img.getAttribute('data-src');
+
+              // Validate URL
+              if (!src || typeof src !== 'string' || src.length > 2048) {
+                console.warn('Invalid image src:', src);
+                return;
+              }
+
+              const imageLoader = new Image();
+
+              const cleanup = () => {
+                imageLoader.onload = null;
+                imageLoader.onerror = null;
+              };
+
+              imageLoader.onload = () => {
+                if (this.isDestroyed || !img.parentNode) {
+                  cleanup();
+                  return;
+                }
+
+                img.src = src;
+                img.removeAttribute('data-src');
+                img.classList.add('loaded');
+                this.loadedImages.add(img);
+                cleanup();
+              };
+
+              imageLoader.onerror = () => {
+                console.warn('Failed to load image:', src);
+                if (img.parentNode) {
+                  img.classList.add('loaded', 'error');
+                }
+                cleanup();
+              };
+
+              imageLoader.src = src;
+            } else {
+              img.classList.add('loaded');
+              this.loadedImages.add(img);
             }
           } catch (error) {
-            console.error('Video loading error:', error);
+            console.error('Image loading error:', error);
+            if (img && img.parentNode) {
+              img.classList.add('loaded', 'error');
+            }
           }
+        }
 
-          // Cleanup event listeners
-          handlers.forEach(({ element, event, handler }) => {
-            element.removeEventListener(event, handler);
+        // Removed setupVideoLoading as we're using SVG animation instead
+
+        preloadCriticalImages() {
+          const criticalImages = [
+            '/favicon.ico',
+            '/images/Artboard%201purp.png'
+          ];
+
+          criticalImages.forEach(src => {
+            try {
+              if (typeof src === 'string' && src.length < 2048) {
+                const link = document.createElement('link');
+                link.rel = 'preload';
+                link.as = 'image';
+                link.href = src;
+
+                // Add error handling
+                link.onerror = () => console.warn('Failed to preload:', src);
+
+                document.head.appendChild(link);
+              }
+            } catch (error) {
+              console.warn('Preload error for', src, error);
+            }
           });
-          handlers.length = 0;
-        };
-
-        const handleInteraction = () => {
-          if (!hasLoaded) {
-            loadVideo();
-          }
-        };
-
-        // Add interaction listeners with proper cleanup tracking
-        interactionEvents.forEach(event => {
-          document.addEventListener(event, handleInteraction, { passive: true, once: true });
-          handlers.push({ element: document, event, handler: handleInteraction });
-        });
-
-        // Fallback timer
-        const fallbackTimer = setTimeout(() => {
-          if (!hasLoaded) {
-            loadVideo();
-          }
-        }, 2000);
-
-        // Store timer for cleanup
-        this.eventHandlers.set('videoTimer', fallbackTimer);
-      } catch (error) {
-        console.error('Video setup error:', error);
-      }
-    }
-
-    preloadCriticalImages() {
-      const criticalImages = [
-        '/favicon.ico',
-        '/images/Artboard%201purp.png'
-      ];
-
-      criticalImages.forEach(src => {
-        try {
-          if (typeof src === 'string' && src.length < 2048) {
-            const link = document.createElement('link');
-            link.rel = 'preload';
-            link.as = 'image';
-            link.href = src;
-            
-            // Add error handling
-            link.onerror = () => console.warn('Failed to preload:', src);
-            
-            document.head.appendChild(link);
-          }
-        } catch (error) {
-          console.warn('Preload error for', src, error);
-        }
-      });
-    }
-
-    fallbackToImmediate() {
-      if (this.isDestroyed) return;
-
-      try {
-        const lazyImages = document.querySelectorAll('img[data-src]:not(.loaded)');
-        lazyImages.forEach(img => this.loadImage(img));
-      } catch (error) {
-        console.error('Fallback loading error:', error);
-      }
-    }
-
-    refresh() {
-      if (this.isDestroyed || !this.imageObserver) return;
-      
-      try {
-        this.observeImages();
-      } catch (error) {
-        console.error('Refresh error:', error);
-      }
-    }
-
-    destroy() {
-      this.isDestroyed = true;
-
-      // Cleanup observers
-      this.observers.forEach(observer => {
-        if (observer && typeof observer.disconnect === 'function') {
-          observer.disconnect();
-        }
-      });
-      this.observers.clear();
-
-      // Cleanup event handlers
-      this.eventHandlers.forEach((value, key) => {
-        if (typeof value === 'number') {
-          // It's a timer
-          clearTimeout(value);
-        } else if (value && value.handler && key instanceof Element) {
-          // It's an event handler
-          key.removeEventListener(value.event, value.handler);
-        }
-      });
-      this.eventHandlers.clear();
-
-      // Reset properties
-      this.imageObserver = null;
-      this.videoObserver = null;
-      this.loadedImages = new WeakSet();
-    }
-  }
-
-  // Device detection with validation
-  const DeviceInfo = {
-    isMobile: /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent || ''),
-    isTablet: /iPad|Android(?!.*Mobile)/i.test(navigator.userAgent || ''),
-    hasReducedMotion: window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches,
-    prefersDarkMode: window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches,
-    supportsIntersectionObserver: 'IntersectionObserver' in window,
-    supportsServiceWorker: 'serviceWorker' in navigator
-  };
-
-  DeviceInfo.isLowPerformance = DeviceInfo.isMobile || (window.devicePixelRatio && window.devicePixelRatio < 2);
-
-  // Main Interactive Manager with comprehensive resource management
-  class InteractiveManager {
-    constructor() {
-      this.isInitialized = false;
-      this.isDestroyed = false;
-      this.animationFrameId = null;
-      this.timers = new Set();
-      this.eventHandlers = new Map();
-      this.observers = new Set();
-      this.touchHandlers = new Set();
-      
-      this.lastInteractionTime = 0;
-      this.lastFrameTime = 0;
-      
-      // Performance constants
-      this.INTERACTION_THROTTLE = DeviceInfo.isMobile ? 32 : 16;
-      this.MAX_FPS = 60;
-      this.FRAME_DURATION = 1000 / this.MAX_FPS;
-      
-      // Bind methods to maintain context
-      this.handleResize = this.debounce(this.handleResize.bind(this), 250);
-      this.handleVisibilityChange = this.handleVisibilityChange.bind(this);
-      this.handleInteraction = this.handleInteraction.bind(this);
-      
-      this.init();
-    }
-
-    init() {
-      if (this.isInitialized || this.isDestroyed) return;
-
-      try {
-        this.isInitialized = true;
-        
-        this.initializeParticles();
-        this.initializeShapes();
-        this.initializeNavigation();
-        this.initializeInteractions();
-        this.initializeLogoIntro();
-        this.initializeEventListeners();
-        this.initializeDarkMode();
-        this.applyPerformanceOptimizations();
-        
-        console.log('Interactive interface initialized successfully');
-      } catch (error) {
-        console.error('Initialization error:', error);
-        this.isInitialized = false;
-      }
-    }
-
-    debounce(func, wait) {
-      let timeout;
-      return (...args) => {
-        if (this.isDestroyed) return;
-        
-        clearTimeout(timeout);
-        timeout = setTimeout(() => {
-          if (!this.isDestroyed) {
-            func.apply(this, args);
-          }
-        }, wait);
-        
-        this.timers.add(timeout);
-      };
-    }
-
-    throttle(func, limit) {
-      let inThrottle;
-      return (...args) => {
-        if (this.isDestroyed) return;
-        
-        if (!inThrottle) {
-          func.apply(this, args);
-          inThrottle = true;
-          const timer = setTimeout(() => {
-            inThrottle = false;
-          }, limit);
-          this.timers.add(timer);
-        }
-      };
-    }
-
-    createParticles() {
-      if (this.isDestroyed || DeviceInfo.hasReducedMotion) return;
-
-      const particleContainer = document.getElementById('particles');
-      if (!particleContainer) return;
-
-      try {
-        // Calculate particle count based on device capabilities
-        const screenWidth = Math.max(window.innerWidth || 0, 320);
-        let particleCount;
-
-        if (DeviceInfo.isMobile && screenWidth < 480) {
-          particleCount = 4;
-        } else if (DeviceInfo.isMobile && screenWidth < 768) {
-          particleCount = 8;
-        } else if (DeviceInfo.isMobile) {
-          particleCount = 12;
-        } else if (DeviceInfo.isTablet) {
-          particleCount = 16;
-        } else {
-          particleCount = Math.min(25, Math.floor(screenWidth / 60));
         }
 
-        // Clear existing particles safely
-        while (particleContainer.firstChild) {
-          particleContainer.removeChild(particleContainer.firstChild);
-        }
+        fallbackToImmediate() {
+          if (this.isDestroyed) return;
 
-        // Create particles with error boundaries
-        const fragment = document.createDocumentFragment();
-        
-        for (let i = 0; i < particleCount; i++) {
           try {
-            const particle = document.createElement('div');
-            particle.className = 'particle';
-            
-            // Safe positioning calculations
-            const particleSize = 20;
-            const safeWidth = Math.max(screenWidth - particleSize * 2, 100);
-            const leftPercent = Math.random() * (safeWidth / screenWidth * 100);
-            
-            particle.style.cssText = `
+            const lazyImages = document.querySelectorAll('img[data-src]:not(.loaded)');
+            lazyImages.forEach(img => this.loadImage(img));
+          } catch (error) {
+            console.error('Fallback loading error:', error);
+          }
+        }
+
+        refresh() {
+          if (this.isDestroyed || !this.imageObserver) return;
+
+          try {
+            this.observeImages();
+          } catch (error) {
+            console.error('Refresh error:', error);
+          }
+        }
+
+        destroy() {
+          this.isDestroyed = true;
+
+          // Cleanup observers
+          this.observers.forEach(observer => {
+            if (observer && typeof observer.disconnect === 'function') {
+              observer.disconnect();
+            }
+          });
+          this.observers.clear();
+
+          // Cleanup event handlers
+          this.eventHandlers.forEach((value, key) => {
+            if (typeof value === 'number') {
+              // It's a timer
+              clearTimeout(value);
+            } else if (value && value.handler && key instanceof Element) {
+              // It's an event handler
+              key.removeEventListener(value.event, value.handler);
+            }
+          });
+          this.eventHandlers.clear();
+
+          // Reset properties
+          this.imageObserver = null;
+          this.videoObserver = null;
+          this.loadedImages = new WeakSet();
+        }
+      }
+
+      // Device detection with validation
+      const DeviceInfo = {
+        isMobile: /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent || ''),
+        isTablet: /iPad|Android(?!.*Mobile)/i.test(navigator.userAgent || ''),
+        hasReducedMotion: window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+        prefersDarkMode: window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches,
+        supportsIntersectionObserver: 'IntersectionObserver' in window,
+        supportsServiceWorker: 'serviceWorker' in navigator
+      };
+
+      DeviceInfo.isLowPerformance = DeviceInfo.isMobile || (window.devicePixelRatio && window.devicePixelRatio < 2);
+
+      // Main Interactive Manager with comprehensive resource management
+      class InteractiveManager {
+        constructor() {
+          this.isInitialized = false;
+          this.isDestroyed = false;
+          this.animationFrameId = null;
+          this.timers = new Set();
+          this.eventHandlers = new Map();
+          this.observers = new Set();
+          this.touchHandlers = new Set();
+
+          this.lastInteractionTime = 0;
+          this.lastFrameTime = 0;
+
+          // Performance constants
+          this.INTERACTION_THROTTLE = DeviceInfo.isMobile ? 32 : 16;
+          this.MAX_FPS = 60;
+          this.FRAME_DURATION = 1000 / this.MAX_FPS;
+
+          // Bind methods to maintain context
+          this.handleResize = this.debounce(this.handleResize.bind(this), 250);
+          this.handleVisibilityChange = this.handleVisibilityChange.bind(this);
+          this.handleInteraction = this.handleInteraction.bind(this);
+
+          this.init();
+        }
+
+        init() {
+          if (this.isInitialized || this.isDestroyed) return;
+
+          try {
+            this.isInitialized = true;
+
+            this.initializeParticles();
+            this.initializeShapes();
+            this.initializeNavigation();
+            this.initializeInteractions();
+            this.initializeLogoIntro();
+            this.initializeEventListeners();
+            this.initializeDarkMode();
+            this.applyPerformanceOptimizations();
+
+            console.log('Interactive interface initialized successfully');
+          } catch (error) {
+            console.error('Initialization error:', error);
+            this.isInitialized = false;
+          }
+        }
+
+        debounce(func, wait) {
+          let timeout;
+          return (...args) => {
+            if (this.isDestroyed) return;
+
+            clearTimeout(timeout);
+            timeout = setTimeout(() => {
+              if (!this.isDestroyed) {
+                func.apply(this, args);
+              }
+            }, wait);
+
+            this.timers.add(timeout);
+          };
+        }
+
+        throttle(func, limit) {
+          let inThrottle;
+          return (...args) => {
+            if (this.isDestroyed) return;
+
+            if (!inThrottle) {
+              func.apply(this, args);
+              inThrottle = true;
+              const timer = setTimeout(() => {
+                inThrottle = false;
+              }, limit);
+              this.timers.add(timer);
+            }
+          };
+        }
+
+        createParticles() {
+          if (this.isDestroyed || DeviceInfo.hasReducedMotion) return;
+
+          const particleContainer = document.getElementById('particles');
+          if (!particleContainer) return;
+
+          try {
+            // Calculate particle count based on device capabilities
+            const screenWidth = Math.max(window.innerWidth || 0, 320);
+            let particleCount;
+
+            if (DeviceInfo.isMobile && screenWidth < 480) {
+              particleCount = 4;
+            } else if (DeviceInfo.isMobile && screenWidth < 768) {
+              particleCount = 8;
+            } else if (DeviceInfo.isMobile) {
+              particleCount = 12;
+            } else if (DeviceInfo.isTablet) {
+              particleCount = 16;
+            } else {
+              particleCount = Math.min(25, Math.floor(screenWidth / 60));
+            }
+
+            // Clear existing particles safely
+            while (particleContainer.firstChild) {
+              particleContainer.removeChild(particleContainer.firstChild);
+            }
+
+            // Create particles with error boundaries
+            const fragment = document.createDocumentFragment();
+
+            for (let i = 0; i < particleCount; i++) {
+              try {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+
+                // Safe positioning calculations
+                const particleSize = 20;
+                const safeWidth = Math.max(screenWidth - particleSize * 2, 100);
+                const leftPercent = Math.random() * (safeWidth / screenWidth * 100);
+
+                particle.style.cssText = `
               left: ${leftPercent.toFixed(2)}%;
               animation-delay: ${(Math.random() * 15).toFixed(2)}s;
               animation-duration: ${(Math.random() * 10 + 10).toFixed(2)}s;
@@ -2438,791 +2452,791 @@
               backface-visibility: hidden;
               will-change: transform;
             `;
-            
-            fragment.appendChild(particle);
+
+                fragment.appendChild(particle);
+              } catch (error) {
+                console.error('Particle creation error:', error);
+                break;
+              }
+            }
+
+            particleContainer.appendChild(fragment);
           } catch (error) {
-            console.error('Particle creation error:', error);
-            break;
+            console.error('Particle system error:', error);
           }
         }
-        
-        particleContainer.appendChild(fragment);
-      } catch (error) {
-        console.error('Particle system error:', error);
-      }
-    }
 
-    initializeParticles() {
-      this.createParticles();
-    }
+        initializeParticles() {
+          this.createParticles();
+        }
 
-    initializeShapes() {
-      if (this.isDestroyed) return;
+        initializeShapes() {
+          if (this.isDestroyed) return;
 
-      try {
-        const shapes = document.querySelectorAll('.geometric-shape');
-        
-        shapes.forEach((shape, index) => {
-          if (!shape.parentNode) return;
+          try {
+            const shapes = document.querySelectorAll('.geometric-shape');
 
-          // Apply hardware acceleration
-          shape.style.cssText += `
+            shapes.forEach((shape, index) => {
+              if (!shape.parentNode) return;
+
+              // Apply hardware acceleration
+              shape.style.cssText += `
             transform: perspective(600px) translate3d(0, 0, 0);
             backface-visibility: hidden;
             will-change: transform;
           `;
-          
-          if (!shape.classList.contains('float-animation')) {
-            shape.classList.add('float-animation');
-          }
 
-          if (DeviceInfo.isMobile) {
-            shape.style.touchAction = 'manipulation';
-          }
-
-          // Create interaction handler with proper cleanup
-          const handleShapeClick = this.createShapeInteractionHandler(shape);
-          shape.addEventListener('click', handleShapeClick, { passive: false });
-          
-          this.eventHandlers.set(shape, {
-            event: 'click',
-            handler: handleShapeClick
-          });
-
-          // Mobile touch handling
-          if (DeviceInfo.isMobile || DeviceInfo.isTablet) {
-            const touchHandler = this.createTouchHandler(shape, handleShapeClick);
-            shape.addEventListener('touchstart', touchHandler, { passive: true });
-            
-            this.touchHandlers.add({
-              element: shape,
-              event: 'touchstart',
-              handler: touchHandler
-            });
-          }
-        });
-      } catch (error) {
-        console.error('Shape initialization error:', error);
-      }
-    }
-
-    createShapeInteractionHandler(shape) {
-      return (e) => {
-        if (this.isDestroyed || !shape.parentNode) return;
-
-        try {
-          e.preventDefault();
-          e.stopPropagation();
-
-          const scale = DeviceInfo.isMobile ? 1.15 : 1.3;
-          
-          shape.classList.remove('float-animation');
-          shape.style.transition = 'transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
-          shape.style.transform = `perspective(600px) scale(${scale}) rotate3d(0, 1, 0, 180deg) translate3d(0, 0, 0)`;
-
-          const resetTimer = setTimeout(() => {
-            if (this.isDestroyed || !shape.parentNode) return;
-            
-            shape.style.transform = 'perspective(600px) scale(1) rotate3d(0, 1, 0, 0deg) translate3d(0, 0, 0)';
-            shape.style.transition = '';
-            
-            requestAnimationFrame(() => {
-              if (!this.isDestroyed && shape.parentNode) {
+              if (!shape.classList.contains('float-animation')) {
                 shape.classList.add('float-animation');
               }
+
+              if (DeviceInfo.isMobile) {
+                shape.style.touchAction = 'manipulation';
+              }
+
+              // Create interaction handler with proper cleanup
+              const handleShapeClick = this.createShapeInteractionHandler(shape);
+              shape.addEventListener('click', handleShapeClick, { passive: false });
+
+              this.eventHandlers.set(shape, {
+                event: 'click',
+                handler: handleShapeClick
+              });
+
+              // Mobile touch handling
+              if (DeviceInfo.isMobile || DeviceInfo.isTablet) {
+                const touchHandler = this.createTouchHandler(shape, handleShapeClick);
+                shape.addEventListener('touchstart', touchHandler, { passive: true });
+
+                this.touchHandlers.add({
+                  element: shape,
+                  event: 'touchstart',
+                  handler: touchHandler
+                });
+              }
             });
-          }, 400);
-          
-          this.timers.add(resetTimer);
-        } catch (error) {
-          console.error('Shape interaction error:', error);
+          } catch (error) {
+            console.error('Shape initialization error:', error);
+          }
         }
-      };
-    }
 
-    createTouchHandler(shape, clickHandler) {
-      return (e) => {
-        if (!e.touches?.[0] || this.isDestroyed) return;
+        createShapeInteractionHandler(shape) {
+          return (e) => {
+            if (this.isDestroyed || !shape.parentNode) return;
 
-        const startTouch = e.touches[0];
-        const startX = startTouch.clientX || 0;
-        const startY = startTouch.clientY || 0;
+            try {
+              e.preventDefault();
+              e.stopPropagation();
 
-        const handleTouchEnd = (endEvent) => {
-          try {
-            if (!endEvent.changedTouches?.[0]) return;
+              const scale = DeviceInfo.isMobile ? 1.15 : 1.3;
 
-            const endTouch = endEvent.changedTouches[0];
-            const deltaX = Math.abs((endTouch.clientX || 0) - startX);
-            const deltaY = Math.abs((endTouch.clientY || 0) - startY);
+              shape.classList.remove('float-animation');
+              shape.style.transition = 'transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+              shape.style.transform = `perspective(600px) scale(${scale}) rotate3d(0, 1, 0, 180deg) translate3d(0, 0, 0)`;
 
-            if (deltaX < 10 && deltaY < 10) {
-              clickHandler(e);
+              const resetTimer = setTimeout(() => {
+                if (this.isDestroyed || !shape.parentNode) return;
+
+                shape.style.transform = 'perspective(600px) scale(1) rotate3d(0, 1, 0, 0deg) translate3d(0, 0, 0)';
+                shape.style.transition = '';
+
+                requestAnimationFrame(() => {
+                  if (!this.isDestroyed && shape.parentNode) {
+                    shape.classList.add('float-animation');
+                  }
+                });
+              }, 400);
+
+              this.timers.add(resetTimer);
+            } catch (error) {
+              console.error('Shape interaction error:', error);
             }
-          } catch (error) {
-            console.error('Touch end error:', error);
-          } finally {
-            shape.removeEventListener('touchend', handleTouchEnd);
-          }
-        };
-
-        shape.addEventListener('touchend', handleTouchEnd, { passive: false, once: true });
-      };
-    }
-
-    handleInteraction(clientX, clientY) {
-      if (this.isDestroyed || typeof clientX !== 'number' || typeof clientY !== 'number') return;
-      if (isNaN(clientX) || isNaN(clientY)) return;
-
-      const currentTime = performance.now();
-      if (currentTime - this.lastInteractionTime < this.INTERACTION_THROTTLE) return;
-      
-      this.lastInteractionTime = currentTime;
-
-      if (this.animationFrameId) {
-        cancelAnimationFrame(this.animationFrameId);
-      }
-
-      this.animationFrameId = this.requestOptimizedFrame(() => {
-        if (this.isDestroyed) return;
-
-        const shapes = document.querySelectorAll('.geometric-shape');
-        const maxDistance = DeviceInfo.isMobile ? 80 : 150;
-        const moveMultiplier = DeviceInfo.isMobile ? 0.025 : 0.05;
-
-        shapes.forEach((shape) => {
-          if (!shape.parentNode) return;
-
-          try {
-            const rect = shape.getBoundingClientRect();
-            if (rect.width === 0 || rect.height === 0) return;
-
-            const shapeCenterX = rect.left + rect.width / 2;
-            const shapeCenterY = rect.top + rect.height / 2;
-            const deltaX = clientX - shapeCenterX;
-            const deltaY = clientY - shapeCenterY;
-            const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-
-            if (distance < maxDistance && distance > 0) {
-              const angle = Math.atan2(deltaY, deltaX);
-              const moveX = Math.cos(angle) * (maxDistance - distance) * moveMultiplier;
-              const moveY = Math.sin(angle) * (maxDistance - distance) * moveMultiplier;
-
-              const clampedMoveX = Math.max(-40, Math.min(40, moveX));
-              const clampedMoveY = Math.max(-40, Math.min(40, moveY));
-
-              shape.style.transform = `perspective(600px) translate3d(${clampedMoveX.toFixed(2)}px, ${clampedMoveY.toFixed(2)}px, 0) scale(1.05)`;
-            } else {
-              shape.style.transform = 'perspective(600px) translate3d(0, 0, 0) scale(1)';
-            }
-          } catch (error) {
-            console.error('Shape interaction error:', error);
-          }
-        });
-      });
-    }
-
-    requestOptimizedFrame(callback) {
-      const now = performance.now();
-      if (now - this.lastFrameTime >= this.FRAME_DURATION) {
-        this.lastFrameTime = now;
-        return requestAnimationFrame(callback);
-      }
-      
-      const timer = setTimeout(() => {
-        this.requestOptimizedFrame(callback);
-      }, Math.max(0, this.FRAME_DURATION - (now - this.lastFrameTime)));
-      
-      this.timers.add(timer);
-      return timer;
-    }
-
-    initializeInteractions() {
-      if (this.isDestroyed) return;
-
-      // Desktop interactions
-      if (!DeviceInfo.isMobile && !DeviceInfo.isTablet) {
-        const mouseHandler = (e) => {
-          if (e.clientX !== undefined && e.clientY !== undefined) {
-            this.handleInteraction(e.clientX, e.clientY);
-          }
-        };
-
-        document.addEventListener('mousemove', mouseHandler, { passive: true });
-        this.eventHandlers.set('mousemove', { element: document, handler: mouseHandler });
-      }
-
-      // Mobile interactions
-      if (DeviceInfo.isMobile || DeviceInfo.isTablet) {
-        this.initializeMobileInteractions();
-      }
-    }
-
-    initializeMobileInteractions() {
-      let touchStartY = 0;
-      let touchStartX = 0;
-      let isScrolling = false;
-      let isInteracting = false;
-      let touchTimer = null;
-
-      const clearTouchInteraction = () => {
-        if (touchTimer) {
-          clearTimeout(touchTimer);
-          touchTimer = null;
-        }
-        isInteracting = false;
-
-        const shapes = document.querySelectorAll('.geometric-shape');
-        shapes.forEach(shape => {
-          if (shape.parentNode) {
-            shape.style.transform = 'perspective(600px) translate3d(0, 0, 0) scale(1)';
-          }
-        });
-      };
-
-      const touchStartHandler = (e) => {
-        if (!e.touches?.[0] || this.isDestroyed) return;
-
-        const touch = e.touches[0];
-        touchStartY = touch.clientY || 0;
-        touchStartX = touch.clientX || 0;
-        isScrolling = false;
-        isInteracting = true;
-
-        clearTouchInteraction();
-
-        if (touch.clientX !== undefined && touch.clientY !== undefined) {
-          this.handleInteraction(touch.clientX, touch.clientY);
-        }
-      };
-
-      const touchMoveHandler = (e) => {
-        if (!e.touches?.[0] || this.isDestroyed) return;
-
-        const touch = e.touches[0];
-        const deltaY = Math.abs((touch.clientY || 0) - touchStartY);
-        const deltaX = Math.abs((touch.clientX || 0) - touchStartX);
-
-        if (deltaY > 10 && deltaY > deltaX) {
-          isScrolling = true;
-          clearTouchInteraction();
-          return;
+          };
         }
 
-        if (!isScrolling && isInteracting && touch.clientX !== undefined && touch.clientY !== undefined) {
-          this.handleInteraction(touch.clientX, touch.clientY);
-        }
+        createTouchHandler(shape, clickHandler) {
+          return (e) => {
+            if (!e.touches?.[0] || this.isDestroyed) return;
 
-        clearTimeout(touchTimer);
-        touchTimer = setTimeout(clearTouchInteraction, 150);
-        this.timers.add(touchTimer);
-      };
+            const startTouch = e.touches[0];
+            const startX = startTouch.clientX || 0;
+            const startY = startTouch.clientY || 0;
 
-      const touchEndHandler = () => {
-        const timer = setTimeout(clearTouchInteraction, 100);
-        this.timers.add(timer);
-      };
+            const handleTouchEnd = (endEvent) => {
+              try {
+                if (!endEvent.changedTouches?.[0]) return;
 
-      document.addEventListener('touchstart', touchStartHandler, { passive: true });
-      document.addEventListener('touchmove', touchMoveHandler, { passive: true });
-      document.addEventListener('touchend', touchEndHandler, { passive: true });
+                const endTouch = endEvent.changedTouches[0];
+                const deltaX = Math.abs((endTouch.clientX || 0) - startX);
+                const deltaY = Math.abs((endTouch.clientY || 0) - startY);
 
-      this.touchHandlers.add({ element: document, event: 'touchstart', handler: touchStartHandler });
-      this.touchHandlers.add({ element: document, event: 'touchmove', handler: touchMoveHandler });
-      this.touchHandlers.add({ element: document, event: 'touchend', handler: touchEndHandler });
-    }
-
-    initializeNavigation() {
-      if (this.isDestroyed) return;
-
-      try {
-        const hamburger = document.querySelector('.hamburger');
-        const navbar = document.querySelector('.navbar');
-        const navLinks = document.querySelectorAll('#nav-links a');
-
-        if (!hamburger || !navbar) return;
-
-        const toggleNav = () => {
-          if (this.isDestroyed) return;
-          
-          try {
-            navbar.classList.toggle('nav-open');
-            hamburger.classList.toggle('active');
-          } catch (error) {
-            console.error('Navigation toggle error:', error);
-          }
-        };
-
-        const closeNav = () => {
-          if (this.isDestroyed) return;
-          
-          try {
-            navbar.classList.remove('nav-open');
-            hamburger.classList.remove('active');
-          } catch (error) {
-            console.error('Navigation close error:', error);
-          }
-        };
-
-        // Main toggle handler
-        hamburger.addEventListener('click', toggleNav);
-        hamburger.addEventListener('keydown', (e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            toggleNav();
-          }
-        });
-
-        // Outside click handler
-        const outsideClickHandler = (e) => {
-          if (!navbar.contains(e.target) && !hamburger.contains(e.target)) {
-            closeNav();
-          }
-        };
-        document.addEventListener('click', outsideClickHandler, { passive: true });
-
-        // Nav link handlers
-        navLinks.forEach(link => {
-          link.addEventListener('click', closeNav, { passive: true });
-        });
-
-        // Store handlers for cleanup
-        this.eventHandlers.set('hamburger-click', { element: hamburger, handler: toggleNav });
-        this.eventHandlers.set('outside-click', { element: document, handler: outsideClickHandler });
-        
-        navLinks.forEach((link, index) => {
-          this.eventHandlers.set(`nav-link-${index}`, { element: link, handler: closeNav });
-        });
-      } catch (error) {
-        console.error('Navigation initialization error:', error);
-      }
-    }
-
-    initializeLogoIntro() {
-      if (this.isDestroyed) return;
-
-      try {
-        const logoIntroVideo = document.getElementById('logoIntroVideo');
-        const logoIntroOverlay = document.getElementById('logoIntroOverlay');
-        const logo3d = document.getElementById('logo3d');
-
-        if (!logoIntroVideo || !logoIntroOverlay || !logo3d) return;
-
-        const handleVideoEnd = () => {
-          if (this.isDestroyed) return;
-          
-          try {
-            logoIntroOverlay.classList.add('fade-out');
-            
-            const timer = setTimeout(() => {
-              if (this.isDestroyed) return;
-              
-              if (logoIntroOverlay.parentNode) {
-                logoIntroOverlay.style.display = 'none';
+                if (deltaX < 10 && deltaY < 10) {
+                  clickHandler(e);
+                }
+              } catch (error) {
+                console.error('Touch end error:', error);
+              } finally {
+                shape.removeEventListener('touchend', handleTouchEnd);
               }
-              if (logo3d.parentNode) {
-                logo3d.classList.add('show');
-              }
-            }, 500);
-            
-            this.timers.add(timer);
-          } catch (error) {
-            console.error('Logo intro completion error:', error);
-          }
-        };
+            };
 
-        logoIntroVideo.addEventListener('ended', handleVideoEnd, { once: true });
-        logoIntroVideo.addEventListener('error', handleVideoEnd, { once: true });
-        
-        this.eventHandlers.set('video-ended', { element: logoIntroVideo, handler: handleVideoEnd });
-      } catch (error) {
-        console.error('Logo intro initialization error:', error);
-      }
-    }
-
-    handleResize() {
-      if (this.isDestroyed) return;
-
-      try {
-        const particleContainer = document.getElementById('particles');
-        if (particleContainer) {
-          // Clear existing particles safely
-          while (particleContainer.firstChild) {
-            particleContainer.removeChild(particleContainer.firstChild);
-          }
-          this.createParticles();
+            shape.addEventListener('touchend', handleTouchEnd, { passive: false, once: true });
+          };
         }
-      } catch (error) {
-        console.error('Resize handler error:', error);
-      }
-    }
 
-    handleVisibilityChange() {
-      if (this.isDestroyed) return;
+        handleInteraction(clientX, clientY) {
+          if (this.isDestroyed || typeof clientX !== 'number' || typeof clientY !== 'number') return;
+          if (isNaN(clientX) || isNaN(clientY)) return;
 
-      try {
-        const particles = document.querySelectorAll('.particle');
-        const shapes = document.querySelectorAll('.geometric-shape');
+          const currentTime = performance.now();
+          if (currentTime - this.lastInteractionTime < this.INTERACTION_THROTTLE) return;
 
-        if (document.hidden) {
-          // Pause animations when tab is hidden
-          particles.forEach(p => {
-            if (p.parentNode) p.style.animationPlayState = 'paused';
-          });
-          shapes.forEach(s => {
-            if (s.parentNode) s.style.animationPlayState = 'paused';
-          });
+          this.lastInteractionTime = currentTime;
 
-          // Cancel animation frames
           if (this.animationFrameId) {
             cancelAnimationFrame(this.animationFrameId);
-            this.animationFrameId = null;
           }
-        } else {
-          // Resume animations when tab becomes visible
-          particles.forEach(p => {
-            if (p.parentNode) p.style.animationPlayState = 'running';
-          });
-          shapes.forEach(s => {
-            if (s.parentNode) {
-              s.style.animationPlayState = 'running';
-              s.style.transform = 'perspective(600px) translate3d(0, 0, 0) scale(1)';
-              
-              // Re-add float animation safely
-              s.classList.remove('float-animation');
-              requestAnimationFrame(() => {
-                if (!this.isDestroyed && s.parentNode) {
-                  s.classList.add('float-animation');
-                }
-              });
-            }
-          });
-        }
-      } catch (error) {
-        console.error('Visibility change error:', error);
-      }
-    }
 
-    initializeEventListeners() {
-      if (this.isDestroyed) return;
-
-      // Resize handler
-      window.addEventListener('resize', this.handleResize, { passive: true });
-      this.eventHandlers.set('resize', { element: window, handler: this.handleResize });
-
-      // Visibility change handler
-      document.addEventListener('visibilitychange', this.handleVisibilityChange, { passive: true });
-      this.eventHandlers.set('visibilitychange', { element: document, handler: this.handleVisibilityChange });
-
-      // Page unload cleanup
-      const cleanupHandler = () => this.destroy();
-      window.addEventListener('beforeunload', cleanupHandler, { passive: true });
-      window.addEventListener('unload', cleanupHandler, { passive: true });
-      
-      this.eventHandlers.set('beforeunload', { element: window, handler: cleanupHandler });
-      this.eventHandlers.set('unload', { element: window, handler: cleanupHandler });
-    }
-
-    initializeDarkMode() {
-      if (this.isDestroyed) return;
-
-      try {
-        if (DeviceInfo.prefersDarkMode) {
-          document.documentElement.classList.add('dark-theme');
-        }
-
-        if (window.matchMedia) {
-          const darkModeQuery = window.matchMedia('(prefers-color-scheme: dark)');
-          
-          const darkModeHandler = (e) => {
+          this.animationFrameId = this.requestOptimizedFrame(() => {
             if (this.isDestroyed) return;
-            
-            try {
-              if (e.matches) {
-                document.documentElement.classList.add('dark-theme');
-              } else {
-                document.documentElement.classList.remove('dark-theme');
+
+            const shapes = document.querySelectorAll('.geometric-shape');
+            const maxDistance = DeviceInfo.isMobile ? 80 : 150;
+            const moveMultiplier = DeviceInfo.isMobile ? 0.025 : 0.05;
+
+            shapes.forEach((shape) => {
+              if (!shape.parentNode) return;
+
+              try {
+                const rect = shape.getBoundingClientRect();
+                if (rect.width === 0 || rect.height === 0) return;
+
+                const shapeCenterX = rect.left + rect.width / 2;
+                const shapeCenterY = rect.top + rect.height / 2;
+                const deltaX = clientX - shapeCenterX;
+                const deltaY = clientY - shapeCenterY;
+                const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+
+                if (distance < maxDistance && distance > 0) {
+                  const angle = Math.atan2(deltaY, deltaX);
+                  const moveX = Math.cos(angle) * (maxDistance - distance) * moveMultiplier;
+                  const moveY = Math.sin(angle) * (maxDistance - distance) * moveMultiplier;
+
+                  const clampedMoveX = Math.max(-40, Math.min(40, moveX));
+                  const clampedMoveY = Math.max(-40, Math.min(40, moveY));
+
+                  shape.style.transform = `perspective(600px) translate3d(${clampedMoveX.toFixed(2)}px, ${clampedMoveY.toFixed(2)}px, 0) scale(1.05)`;
+                } else {
+                  shape.style.transform = 'perspective(600px) translate3d(0, 0, 0) scale(1)';
+                }
+              } catch (error) {
+                console.error('Shape interaction error:', error);
               }
-            } catch (error) {
-              console.error('Dark mode handler error:', error);
+            });
+          });
+        }
+
+        requestOptimizedFrame(callback) {
+          const now = performance.now();
+          if (now - this.lastFrameTime >= this.FRAME_DURATION) {
+            this.lastFrameTime = now;
+            return requestAnimationFrame(callback);
+          }
+
+          const timer = setTimeout(() => {
+            this.requestOptimizedFrame(callback);
+          }, Math.max(0, this.FRAME_DURATION - (now - this.lastFrameTime)));
+
+          this.timers.add(timer);
+          return timer;
+        }
+
+        initializeInteractions() {
+          if (this.isDestroyed) return;
+
+          // Desktop interactions
+          if (!DeviceInfo.isMobile && !DeviceInfo.isTablet) {
+            const mouseHandler = (e) => {
+              if (e.clientX !== undefined && e.clientY !== undefined) {
+                this.handleInteraction(e.clientX, e.clientY);
+              }
+            };
+
+            document.addEventListener('mousemove', mouseHandler, { passive: true });
+            this.eventHandlers.set('mousemove', { element: document, handler: mouseHandler });
+          }
+
+          // Mobile interactions
+          if (DeviceInfo.isMobile || DeviceInfo.isTablet) {
+            this.initializeMobileInteractions();
+          }
+        }
+
+        initializeMobileInteractions() {
+          let touchStartY = 0;
+          let touchStartX = 0;
+          let isScrolling = false;
+          let isInteracting = false;
+          let touchTimer = null;
+
+          const clearTouchInteraction = () => {
+            if (touchTimer) {
+              clearTimeout(touchTimer);
+              touchTimer = null;
+            }
+            isInteracting = false;
+
+            const shapes = document.querySelectorAll('.geometric-shape');
+            shapes.forEach(shape => {
+              if (shape.parentNode) {
+                shape.style.transform = 'perspective(600px) translate3d(0, 0, 0) scale(1)';
+              }
+            });
+          };
+
+          const touchStartHandler = (e) => {
+            if (!e.touches?.[0] || this.isDestroyed) return;
+
+            const touch = e.touches[0];
+            touchStartY = touch.clientY || 0;
+            touchStartX = touch.clientX || 0;
+            isScrolling = false;
+            isInteracting = true;
+
+            clearTouchInteraction();
+
+            if (touch.clientX !== undefined && touch.clientY !== undefined) {
+              this.handleInteraction(touch.clientX, touch.clientY);
             }
           };
 
-          darkModeQuery.addEventListener('change', darkModeHandler);
-          this.eventHandlers.set('darkmode', { element: darkModeQuery, handler: darkModeHandler });
-        }
-      } catch (error) {
-        console.error('Dark mode initialization error:', error);
-      }
-    }
+          const touchMoveHandler = (e) => {
+            if (!e.touches?.[0] || this.isDestroyed) return;
 
-    applyPerformanceOptimizations() {
-      if (this.isDestroyed) return;
+            const touch = e.touches[0];
+            const deltaY = Math.abs((touch.clientY || 0) - touchStartY);
+            const deltaX = Math.abs((touch.clientX || 0) - touchStartX);
 
-      try {
-        const root = document.documentElement;
+            if (deltaY > 10 && deltaY > deltaX) {
+              isScrolling = true;
+              clearTouchInteraction();
+              return;
+            }
 
-        if (DeviceInfo.isLowPerformance) {
-          root.style.setProperty('--animation-duration', '18s');
-          root.style.setProperty('--particle-animation-duration', '25s');
-        }
+            if (!isScrolling && isInteracting && touch.clientX !== undefined && touch.clientY !== undefined) {
+              this.handleInteraction(touch.clientX, touch.clientY);
+            }
 
-        if (DeviceInfo.hasReducedMotion) {
-          root.style.setProperty('--animation-duration', '0s');
-          root.style.setProperty('--particle-animation-duration', '0s');
-        }
+            clearTimeout(touchTimer);
+            touchTimer = setTimeout(clearTouchInteraction, 150);
+            this.timers.add(touchTimer);
+          };
 
-        // Optimize rendering for mobile devices
-        if (DeviceInfo.isMobile) {
-          root.style.setProperty('--transform-style', 'flat');
-          root.style.setProperty('--perspective', '400px');
-        }
-      } catch (error) {
-        console.error('Performance optimization error:', error);
-      }
-    }
+          const touchEndHandler = () => {
+            const timer = setTimeout(clearTouchInteraction, 100);
+            this.timers.add(timer);
+          };
 
-    destroy() {
-      if (this.isDestroyed) return;
-      
-      console.log('Cleaning up InteractiveManager...');
-      this.isDestroyed = true;
+          document.addEventListener('touchstart', touchStartHandler, { passive: true });
+          document.addEventListener('touchmove', touchMoveHandler, { passive: true });
+          document.addEventListener('touchend', touchEndHandler, { passive: true });
 
-      try {
-        // Cancel animation frames
-        if (this.animationFrameId) {
-          cancelAnimationFrame(this.animationFrameId);
-          this.animationFrameId = null;
+          this.touchHandlers.add({ element: document, event: 'touchstart', handler: touchStartHandler });
+          this.touchHandlers.add({ element: document, event: 'touchmove', handler: touchMoveHandler });
+          this.touchHandlers.add({ element: document, event: 'touchend', handler: touchEndHandler });
         }
 
-        // Clear all timers
-        this.timers.forEach(timer => {
-          if (typeof timer === 'number') {
-            clearTimeout(timer);
-            clearInterval(timer);
-          }
-        });
-        this.timers.clear();
+        initializeNavigation() {
+          if (this.isDestroyed) return;
 
-        // Remove all event handlers
-        this.eventHandlers.forEach((handlerInfo, key) => {
           try {
-            if (handlerInfo.element && handlerInfo.handler) {
-              handlerInfo.element.removeEventListener(handlerInfo.event || key, handlerInfo.handler);
+            const hamburger = document.querySelector('.hamburger');
+            const navbar = document.querySelector('.navbar');
+            const navLinks = document.querySelectorAll('#nav-links a');
+
+            if (!hamburger || !navbar) return;
+
+            const toggleNav = () => {
+              if (this.isDestroyed) return;
+
+              try {
+                navbar.classList.toggle('nav-open');
+                hamburger.classList.toggle('active');
+              } catch (error) {
+                console.error('Navigation toggle error:', error);
+              }
+            };
+
+            const closeNav = () => {
+              if (this.isDestroyed) return;
+
+              try {
+                navbar.classList.remove('nav-open');
+                hamburger.classList.remove('active');
+              } catch (error) {
+                console.error('Navigation close error:', error);
+              }
+            };
+
+            // Main toggle handler
+            hamburger.addEventListener('click', toggleNav);
+            hamburger.addEventListener('keydown', (e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                toggleNav();
+              }
+            });
+
+            // Outside click handler
+            const outsideClickHandler = (e) => {
+              if (!navbar.contains(e.target) && !hamburger.contains(e.target)) {
+                closeNav();
+              }
+            };
+            document.addEventListener('click', outsideClickHandler, { passive: true });
+
+            // Nav link handlers
+            navLinks.forEach(link => {
+              link.addEventListener('click', closeNav, { passive: true });
+            });
+
+            // Store handlers for cleanup
+            this.eventHandlers.set('hamburger-click', { element: hamburger, handler: toggleNav });
+            this.eventHandlers.set('outside-click', { element: document, handler: outsideClickHandler });
+
+            navLinks.forEach((link, index) => {
+              this.eventHandlers.set(`nav-link-${index}`, { element: link, handler: closeNav });
+            });
+          } catch (error) {
+            console.error('Navigation initialization error:', error);
+          }
+        }
+
+        initializeLogoIntro() {
+          if (this.isDestroyed) return;
+
+          try {
+            const logoIntroContainer = document.getElementById('logoIntroContainer');
+            const logoIntroOverlay = document.getElementById('logoIntroOverlay');
+            const logo3d = document.getElementById('logo3d');
+
+            if (!logoIntroContainer || !logoIntroOverlay || !logo3d) return;
+
+            const handleAnimationEnd = () => {
+              if (this.isDestroyed) return;
+
+              try {
+                logoIntroOverlay.classList.add('fade-out');
+
+                const timer = setTimeout(() => {
+                  if (this.isDestroyed) return;
+
+                  if (logoIntroOverlay.parentNode) {
+                    logoIntroOverlay.style.display = 'none';
+                  }
+                  if (logo3d.parentNode) {
+                    logo3d.classList.add('show');
+                  }
+                }, 500);
+
+                this.timers.add(timer);
+              } catch (error) {
+                console.error('Logo intro completion error:', error);
+              }
+            };
+
+            // Favicon reveal animation duration: 3s stroke + 1s favicon reveal = 4s total
+            const animationTimer = setTimeout(handleAnimationEnd, 4000);
+            this.timers.add(animationTimer);
+
+          } catch (error) {
+            console.error('Logo intro initialization error:', error);
+          }
+        }
+
+        handleResize() {
+          if (this.isDestroyed) return;
+
+          try {
+            const particleContainer = document.getElementById('particles');
+            if (particleContainer) {
+              // Clear existing particles safely
+              while (particleContainer.firstChild) {
+                particleContainer.removeChild(particleContainer.firstChild);
+              }
+              this.createParticles();
             }
           } catch (error) {
-            console.warn('Error removing event handler:', error);
-          }
-        });
-        this.eventHandlers.clear();
-
-        // Clean up touch handlers
-        this.touchHandlers.forEach(handlerInfo => {
-          try {
-            if (handlerInfo.element && handlerInfo.handler && handlerInfo.event) {
-              handlerInfo.element.removeEventListener(handlerInfo.event, handlerInfo.handler);
-            }
-          } catch (error) {
-            console.warn('Error removing touch handler:', error);
-          }
-        });
-        this.touchHandlers.clear();
-
-        // Disconnect observers
-        this.observers.forEach(observer => {
-          try {
-            if (observer && typeof observer.disconnect === 'function') {
-              observer.disconnect();
-            }
-          } catch (error) {
-            console.warn('Error disconnecting observer:', error);
-          }
-        });
-        this.observers.clear();
-
-        // Clean up particles
-        const particleContainer = document.getElementById('particles');
-        if (particleContainer) {
-          while (particleContainer.firstChild) {
-            particleContainer.removeChild(particleContainer.firstChild);
+            console.error('Resize handler error:', error);
           }
         }
 
-        // Reset shapes
-        const shapes = document.querySelectorAll('.geometric-shape');
-        shapes.forEach(shape => {
-          if (shape.parentNode) {
-            shape.style.transform = 'perspective(600px) translate3d(0, 0, 0) scale(1)';
-            shape.style.transition = '';
-            shape.style.animationPlayState = 'running';
-          }
-        });
+        handleVisibilityChange() {
+          if (this.isDestroyed) return;
 
-        console.log('InteractiveManager cleanup completed successfully');
-      } catch (error) {
-        console.error('Error during cleanup:', error);
-      }
-    }
-  }
+          try {
+            const particles = document.querySelectorAll('.particle');
+            const shapes = document.querySelectorAll('.geometric-shape');
 
-  // Service Worker registration with error handling
-  const ServiceWorkerManager = {
-    register() {
-      if (!DeviceInfo.supportsServiceWorker) return;
+            if (document.hidden) {
+              // Pause animations when tab is hidden
+              particles.forEach(p => {
+                if (p.parentNode) p.style.animationPlayState = 'paused';
+              });
+              shapes.forEach(s => {
+                if (s.parentNode) s.style.animationPlayState = 'paused';
+              });
 
-      try {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/sw.js')
-            .then(registration => {
-              console.log('ServiceWorker registered successfully');
-              
-              // Handle updates
-              registration.addEventListener('updatefound', () => {
-                const newWorker = registration.installing;
-                if (newWorker) {
-                  newWorker.addEventListener('statechange', () => {
-                    if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                      console.log('New ServiceWorker available');
+              // Cancel animation frames
+              if (this.animationFrameId) {
+                cancelAnimationFrame(this.animationFrameId);
+                this.animationFrameId = null;
+              }
+            } else {
+              // Resume animations when tab becomes visible
+              particles.forEach(p => {
+                if (p.parentNode) p.style.animationPlayState = 'running';
+              });
+              shapes.forEach(s => {
+                if (s.parentNode) {
+                  s.style.animationPlayState = 'running';
+                  s.style.transform = 'perspective(600px) translate3d(0, 0, 0) scale(1)';
+
+                  // Re-add float animation safely
+                  s.classList.remove('float-animation');
+                  requestAnimationFrame(() => {
+                    if (!this.isDestroyed && s.parentNode) {
+                      s.classList.add('float-animation');
                     }
                   });
                 }
               });
-            })
-            .catch(error => {
-              console.log('ServiceWorker registration failed:', error.message);
-            });
-        }, { once: true, passive: true });
-      } catch (error) {
-        console.error('ServiceWorker setup error:', error);
-      }
-    }
-  };
+            }
+          } catch (error) {
+            console.error('Visibility change error:', error);
+          }
+        }
 
-  // Image conversion utility with safety checks
-  const ImageConverter = {
-    convertExistingImages() {
-      try {
-        const existingImages = document.querySelectorAll('img[src]:not([data-src]):not([loading]):not(.converted)');
-        
-        existingImages.forEach(img => {
-          const src = img.getAttribute('src');
-          
-          // Skip critical images and validate src
-          if (!src || typeof src !== 'string' || src.length > 2048) return;
-          if (src.includes('favicon') || src.includes('Artboard') || 
-              src.includes('planets') || img.closest('.logo-3d') || 
-              img.closest('.geometric-container')) return;
+        initializeEventListeners() {
+          if (this.isDestroyed) return;
+
+          // Resize handler
+          window.addEventListener('resize', this.handleResize, { passive: true });
+          this.eventHandlers.set('resize', { element: window, handler: this.handleResize });
+
+          // Visibility change handler
+          document.addEventListener('visibilitychange', this.handleVisibilityChange, { passive: true });
+          this.eventHandlers.set('visibilitychange', { element: document, handler: this.handleVisibilityChange });
+
+          // Page unload cleanup
+          const cleanupHandler = () => this.destroy();
+          window.addEventListener('beforeunload', cleanupHandler, { passive: true });
+          window.addEventListener('unload', cleanupHandler, { passive: true });
+
+          this.eventHandlers.set('beforeunload', { element: window, handler: cleanupHandler });
+          this.eventHandlers.set('unload', { element: window, handler: cleanupHandler });
+        }
+
+        initializeDarkMode() {
+          if (this.isDestroyed) return;
 
           try {
-            // Convert to lazy loading
-            img.setAttribute('data-src', src);
-            img.setAttribute('loading', 'lazy');
-            img.classList.add('lazy-load', 'converted');
-
-            // Add dimensions if missing
-            if (!img.getAttribute('width') && !img.getAttribute('height')) {
-              img.setAttribute('width', '200');
-              img.setAttribute('height', '200');
+            if (DeviceInfo.prefersDarkMode) {
+              document.documentElement.classList.add('dark-theme');
             }
 
-            // Create placeholder
-            img.removeAttribute('src');
-            img.style.backgroundColor = '#f0f0f0';
-            img.classList.add('lazy-load-placeholder');
+            if (window.matchMedia) {
+              const darkModeQuery = window.matchMedia('(prefers-color-scheme: dark)');
+
+              const darkModeHandler = (e) => {
+                if (this.isDestroyed) return;
+
+                try {
+                  if (e.matches) {
+                    document.documentElement.classList.add('dark-theme');
+                  } else {
+                    document.documentElement.classList.remove('dark-theme');
+                  }
+                } catch (error) {
+                  console.error('Dark mode handler error:', error);
+                }
+              };
+
+              darkModeQuery.addEventListener('change', darkModeHandler);
+              this.eventHandlers.set('darkmode', { element: darkModeQuery, handler: darkModeHandler });
+            }
           } catch (error) {
-            console.warn('Error converting image:', error);
+            console.error('Dark mode initialization error:', error);
+          }
+        }
+
+        applyPerformanceOptimizations() {
+          if (this.isDestroyed) return;
+
+          try {
+            const root = document.documentElement;
+
+            if (DeviceInfo.isLowPerformance) {
+              root.style.setProperty('--animation-duration', '18s');
+              root.style.setProperty('--particle-animation-duration', '25s');
+            }
+
+            if (DeviceInfo.hasReducedMotion) {
+              root.style.setProperty('--animation-duration', '0s');
+              root.style.setProperty('--particle-animation-duration', '0s');
+            }
+
+            // Optimize rendering for mobile devices
+            if (DeviceInfo.isMobile) {
+              root.style.setProperty('--transform-style', 'flat');
+              root.style.setProperty('--perspective', '400px');
+            }
+          } catch (error) {
+            console.error('Performance optimization error:', error);
+          }
+        }
+
+        destroy() {
+          if (this.isDestroyed) return;
+
+          console.log('Cleaning up InteractiveManager...');
+          this.isDestroyed = true;
+
+          try {
+            // Cancel animation frames
+            if (this.animationFrameId) {
+              cancelAnimationFrame(this.animationFrameId);
+              this.animationFrameId = null;
+            }
+
+            // Clear all timers
+            this.timers.forEach(timer => {
+              if (typeof timer === 'number') {
+                clearTimeout(timer);
+                clearInterval(timer);
+              }
+            });
+            this.timers.clear();
+
+            // Remove all event handlers
+            this.eventHandlers.forEach((handlerInfo, key) => {
+              try {
+                if (handlerInfo.element && handlerInfo.handler) {
+                  handlerInfo.element.removeEventListener(handlerInfo.event || key, handlerInfo.handler);
+                }
+              } catch (error) {
+                console.warn('Error removing event handler:', error);
+              }
+            });
+            this.eventHandlers.clear();
+
+            // Clean up touch handlers
+            this.touchHandlers.forEach(handlerInfo => {
+              try {
+                if (handlerInfo.element && handlerInfo.handler && handlerInfo.event) {
+                  handlerInfo.element.removeEventListener(handlerInfo.event, handlerInfo.handler);
+                }
+              } catch (error) {
+                console.warn('Error removing touch handler:', error);
+              }
+            });
+            this.touchHandlers.clear();
+
+            // Disconnect observers
+            this.observers.forEach(observer => {
+              try {
+                if (observer && typeof observer.disconnect === 'function') {
+                  observer.disconnect();
+                }
+              } catch (error) {
+                console.warn('Error disconnecting observer:', error);
+              }
+            });
+            this.observers.clear();
+
+            // Clean up particles
+            const particleContainer = document.getElementById('particles');
+            if (particleContainer) {
+              while (particleContainer.firstChild) {
+                particleContainer.removeChild(particleContainer.firstChild);
+              }
+            }
+
+            // Reset shapes
+            const shapes = document.querySelectorAll('.geometric-shape');
+            shapes.forEach(shape => {
+              if (shape.parentNode) {
+                shape.style.transform = 'perspective(600px) translate3d(0, 0, 0) scale(1)';
+                shape.style.transition = '';
+                shape.style.animationPlayState = 'running';
+              }
+            });
+
+            console.log('InteractiveManager cleanup completed successfully');
+          } catch (error) {
+            console.error('Error during cleanup:', error);
+          }
+        }
+      }
+
+      // Service Worker registration with error handling
+      const ServiceWorkerManager = {
+        register() {
+          if (!DeviceInfo.supportsServiceWorker) return;
+
+          try {
+            window.addEventListener('load', () => {
+              navigator.serviceWorker.register('/sw.js')
+                .then(registration => {
+                  console.log('ServiceWorker registered successfully');
+
+                  // Handle updates
+                  registration.addEventListener('updatefound', () => {
+                    const newWorker = registration.installing;
+                    if (newWorker) {
+                      newWorker.addEventListener('statechange', () => {
+                        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                          console.log('New ServiceWorker available');
+                        }
+                      });
+                    }
+                  });
+                })
+                .catch(error => {
+                  console.log('ServiceWorker registration failed:', error.message);
+                });
+            }, { once: true, passive: true });
+          } catch (error) {
+            console.error('ServiceWorker setup error:', error);
+          }
+        }
+      };
+
+      // Image conversion utility with safety checks
+      const ImageConverter = {
+        convertExistingImages() {
+          try {
+            const existingImages = document.querySelectorAll('img[src]:not([data-src]):not([loading]):not(.converted)');
+
+            existingImages.forEach(img => {
+              const src = img.getAttribute('src');
+
+              // Skip critical images and validate src
+              if (!src || typeof src !== 'string' || src.length > 2048) return;
+              if (src.includes('favicon') || src.includes('Artboard') ||
+                src.includes('planets') || img.closest('.logo-3d') ||
+                img.closest('.geometric-container')) return;
+
+              try {
+                // Convert to lazy loading
+                img.setAttribute('data-src', src);
+                img.setAttribute('loading', 'lazy');
+                img.classList.add('lazy-load', 'converted');
+
+                // Add dimensions if missing
+                if (!img.getAttribute('width') && !img.getAttribute('height')) {
+                  img.setAttribute('width', '200');
+                  img.setAttribute('height', '200');
+                }
+
+                // Create placeholder
+                img.removeAttribute('src');
+                img.style.backgroundColor = '#f0f0f0';
+                img.classList.add('lazy-load-placeholder');
+              } catch (error) {
+                console.warn('Error converting image:', error);
+              }
+            });
+          } catch (error) {
+            console.error('Image conversion error:', error);
+          }
+        }
+      };
+
+      // Global initialization with comprehensive error handling
+      let globalLazyLoader = null;
+      let globalInteractiveManager = null;
+      let isGloballyInitialized = false;
+
+      function initializeGlobally() {
+        if (isGloballyInitialized) return;
+
+        try {
+          isGloballyInitialized = true;
+
+          // Initialize performance monitoring
+          PerformanceMonitor.init();
+
+          // Convert existing images
+          ImageConverter.convertExistingImages();
+
+          // Initialize lazy loader
+          globalLazyLoader = new LazyLoader();
+
+          // Initialize interactive manager
+          globalInteractiveManager = new InteractiveManager();
+
+          // Register service worker
+          ServiceWorkerManager.register();
+
+          // Expose cleanup functions globally for manual cleanup if needed
+          window.cleanupInteractiveInterface = () => {
+            if (globalLazyLoader) {
+              globalLazyLoader.destroy();
+              globalLazyLoader = null;
+            }
+            if (globalInteractiveManager) {
+              globalInteractiveManager.destroy();
+              globalInteractiveManager = null;
+            }
+            isGloballyInitialized = false;
+          };
+
+          // Expose refresh function for dynamic content
+          window.refreshLazyLoading = () => {
+            if (globalLazyLoader && !globalLazyLoader.isDestroyed) {
+              globalLazyLoader.refresh();
+            }
+          };
+
+          console.log('Global interactive interface initialized successfully');
+        } catch (error) {
+          console.error('Global initialization error:', error);
+          isGloballyInitialized = false;
+        }
+      }
+
+      // Safe DOM ready initialization
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initializeGlobally, { once: true });
+      } else {
+        // Use setTimeout to ensure all other scripts have loaded
+        setTimeout(initializeGlobally, 0);
+      }
+
+      // Comprehensive cleanup on page unload
+      const globalCleanup = () => {
+        if (window.cleanupInteractiveInterface) {
+          window.cleanupInteractiveInterface();
+        }
+      };
+
+      window.addEventListener('beforeunload', globalCleanup, { once: true, passive: true });
+      window.addEventListener('unload', globalCleanup, { once: true, passive: true });
+
+      // Handle page navigation (SPA support)
+      if ('navigation' in window) {
+        window.navigation.addEventListener('navigate', (e) => {
+          if (e.destination.url !== location.href) {
+            globalCleanup();
           }
         });
-      } catch (error) {
-        console.error('Image conversion error:', error);
       }
-    }
-  };
 
-  // Global initialization with comprehensive error handling
-  let globalLazyLoader = null;
-  let globalInteractiveManager = null;
-  let isGloballyInitialized = false;
+    })(); // End IIFE
 
-  function initializeGlobally() {
-    if (isGloballyInitialized) return;
-    
-    try {
-      isGloballyInitialized = true;
-
-      // Initialize performance monitoring
-      PerformanceMonitor.init();
-
-      // Convert existing images
-      ImageConverter.convertExistingImages();
-
-      // Initialize lazy loader
-      globalLazyLoader = new LazyLoader();
-
-      // Initialize interactive manager
-      globalInteractiveManager = new InteractiveManager();
-
-      // Register service worker
-      ServiceWorkerManager.register();
-
-      // Expose cleanup functions globally for manual cleanup if needed
-      window.cleanupInteractiveInterface = () => {
-        if (globalLazyLoader) {
-          globalLazyLoader.destroy();
-          globalLazyLoader = null;
-        }
-        if (globalInteractiveManager) {
-          globalInteractiveManager.destroy();
-          globalInteractiveManager = null;
-        }
-        isGloballyInitialized = false;
-      };
-
-      // Expose refresh function for dynamic content
-      window.refreshLazyLoading = () => {
-        if (globalLazyLoader && !globalLazyLoader.isDestroyed) {
-          globalLazyLoader.refresh();
-        }
-      };
-
-      console.log('Global interactive interface initialized successfully');
-    } catch (error) {
-      console.error('Global initialization error:', error);
-      isGloballyInitialized = false;
-    }
-  }
-
-  // Safe DOM ready initialization
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initializeGlobally, { once: true });
-  } else {
-    // Use setTimeout to ensure all other scripts have loaded
-    setTimeout(initializeGlobally, 0);
-  }
-
-  // Comprehensive cleanup on page unload
-  const globalCleanup = () => {
-    if (window.cleanupInteractiveInterface) {
-      window.cleanupInteractiveInterface();
-    }
-  };
-
-  window.addEventListener('beforeunload', globalCleanup, { once: true, passive: true });
-  window.addEventListener('unload', globalCleanup, { once: true, passive: true });
-
-  // Handle page navigation (SPA support)
-  if ('navigation' in window) {
-    window.navigation.addEventListener('navigate', (e) => {
-      if (e.destination.url !== location.href) {
-        globalCleanup();
-      }
-    });
-  }
-
-})(); // End IIFE
-
-// CSS styles for lazy loading and animations
-const lazyLoadingStyles = `
+    // CSS styles for lazy loading and animations
+    const lazyLoadingStyles = `
 <style>
 .lazy-load {
   opacity: 0;
@@ -3308,13 +3322,13 @@ const lazyLoadingStyles = `
 </style>
 `;
 
-// Inject styles if not already present
-if (!document.querySelector('#lazy-loading-styles')) {
-  const styleElement = document.createElement('div');
-  styleElement.id = 'lazy-loading-styles';
-  styleElement.innerHTML = lazyLoadingStyles;
-  document.head.appendChild(styleElement);
-}
+    // Inject styles if not already present
+    if (!document.querySelector('#lazy-loading-styles')) {
+      const styleElement = document.createElement('div');
+      styleElement.id = 'lazy-loading-styles';
+      styleElement.innerHTML = lazyLoadingStyles;
+      document.head.appendChild(styleElement);
+    }
   </script>
 </body>
 
